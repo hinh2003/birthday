@@ -518,6 +518,8 @@
 
   let pendingPlan = null;
   let pendingEmail = '';
+  let currentPlan = 'full';
+  let previousPlan = 'full';
 
   function selectPlan(plan) {
     ['full','evening'].forEach(p => {
@@ -526,6 +528,7 @@
     });
     document.getElementById('plan-' + plan).classList.add('show');
     document.getElementById('tab-' + plan).classList.add('active');
+    currentPlan = plan;
   }
 
   function isValidEmail(em) {
@@ -546,6 +549,8 @@
     emailInput.classList.remove('error');
     emailError.style.display = 'none';
 
+    previousPlan = currentPlan;
+    selectPlan(plan);
     pendingPlan = plan;
     pendingEmail = herEmail;
 
@@ -558,6 +563,7 @@
   function cancelSend() {
     pendingPlan = null;
     pendingEmail = '';
+    selectPlan(previousPlan);
     document.getElementById('confirm-box').style.display = 'none';
   }
 
@@ -606,6 +612,7 @@
       msg.style.display = 'block';
       document.getElementById('rsvp-question').textContent = 'Đã chốt lịch! 🎀';
       selectPlan(plan);
+      previousPlan = plan;
       pendingPlan = null;
       pendingEmail = '';
 
