@@ -331,6 +331,63 @@
     margin-top: 8px;
   }
 
+  .confirm-box {
+    display: none;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 14px;
+    background: #fff7f9;
+    border: 1px solid #f0ccd7;
+  }
+
+  .confirm-box .confirm-text {
+    font-size: 13px;
+    color: #7a3a5a;
+    line-height: 1.5;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .confirm-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .confirm-actions button {
+    flex: 1;
+    padding: 10px 8px;
+    border-radius: 12px;
+    border: 1.5px solid;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .confirm-send {
+    background: #d0607a;
+    border-color: #d0607a;
+    color: #fff;
+  }
+
+  .confirm-cancel {
+    background: #ffffff;
+    border-color: #e5e5e5;
+    color: #666;
+  }
+
+  .confirm-actions button:hover:not(:disabled) {
+    opacity: 0.86;
+    transform: scale(0.99);
+  }
+
+  .confirm-actions button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+  }
+
   .footer-note {
     font-size: 12px;
     color: #aaa;
@@ -348,7 +405,6 @@
     <span class="hero-cake">🎂</span>
     <div class="hero-tag">Happy Birthday</div>
     <h1 class="hero-title">Sinh nhật của em!</h1>
-    <p class="hero-sub">Thứ Sáu này — anh đặt chỗ cho mình rồi nha 🎉</p>
   </div>
 
   <div class="card-body">
@@ -372,7 +428,7 @@
             <div class="tl-line"></div>
           </div>
           <div class="tl-content">
-            <div class="tl-time">Chiều · ~14:00</div>
+            <div class="tl-time">Chiều · ~15:00</div>
             <div class="tl-title">Khám phá thủy cung</div>
             <div class="tl-desc">Dạo quanh thế giới đại dương, chụp ảnh thật nhiều và vui hết cỡ!</div>
           </div>
@@ -382,7 +438,7 @@
             <div class="tl-dot amber">🍽️</div>
           </div>
           <div class="tl-content">
-            <div class="tl-time">Tối · ~18:30</div>
+            <div class="tl-time">Tối · ~19:30</div>
             <div class="tl-title">Ăn tối xả stress</div>
             <div class="tl-desc">Một bữa ăn thật ngon, thật vui — quên hết mệt mỏi nào!</div>
           </div>
@@ -397,7 +453,7 @@
             <div class="tl-dot pink">🍜</div>
           </div>
           <div class="tl-content">
-            <div class="tl-time">Tối · ~18:30</div>
+            <div class="tl-time">Tối · ~19:30</div>
             <div class="tl-title">Ăn tối cùng nhau</div>
             <div class="tl-desc">Dù bận thế nào thì tối vẫn phải ăn mừng sinh nhật nha em!</div>
           </div>
@@ -421,6 +477,14 @@
       <button class="rsvp-btn no" onclick="rsvp('evening')">🌙 Rảnh buổi tối!</button>
     </div>
 
+    <div class="confirm-box" id="confirm-box">
+      <div class="confirm-text" id="confirm-text"></div>
+      <div class="confirm-actions">
+        <button class="confirm-cancel" onclick="cancelSend()">Hủy</button>
+        <button class="confirm-send" onclick="confirmSend()">Xác nhận gửi</button>
+      </div>
+    </div>
+
     <div class="sending-indicator" id="sending-indicator">
       <span class="spinner"></span> Đang gửi thư xác nhận...
     </div>
@@ -429,7 +493,7 @@
     <div class="error-msg" id="error-msg">😢 Gửi mail thất bại, thử lại sau nha em!</div>
   </div>
 
-  <p class="footer-note">💌 Chốt sớm để anh đặt lịch và chuẩn bị nha em~</p>
+  <p class="footer-note">💌 Chốt sớm để anh chuẩn bị nha em~</p>
 </div>
 
 <script>
@@ -447,9 +511,12 @@
   emailjs.init(EMAILJS_PUBLIC_KEY);
 
   const PLAN_LABELS = {
-    full:    '🌅 Rảnh buổi chiều — Thủy cung (~14:00) + Ăn tối (~18:30)',
-    evening: '🌙 Rảnh buổi tối — Ăn tối (~18:30)'
+    full:    '🌅 Rảnh buổi chiều — Thủy cung (~15:00) + Ăn tối (~19:30)',
+    evening: '🌙 Rảnh buổi tối — Ăn tối (~19:30)'
   };
+
+  let pendingPlan = null;
+  let pendingEmail = '';
 
   function selectPlan(plan) {
     ['full','evening'].forEach(p => {
@@ -477,6 +544,29 @@
     }
     emailInput.classList.remove('error');
     emailError.style.display = 'none';
+
+    pendingPlan = plan;
+    pendingEmail = herEmail;
+
+    document.getElementById('confirm-text').innerHTML = `Bạn chọn <strong>${PLAN_LABELS[plan]}</strong>.<br>Nhấn <strong>Xác nhận gửi</strong> để gửi thư xác nhận.`;
+    document.getElementById('confirm-box').style.display = 'block';
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('chosen-msg').style.display = 'none';
+  }
+
+  function cancelSend() {
+    pendingPlan = null;
+    pendingEmail = '';
+    document.getElementById('confirm-box').style.display = 'none';
+  }
+
+  async function confirmSend() {
+    if (!pendingPlan || !pendingEmail) return;
+
+    const plan = pendingPlan;
+    const herEmail = pendingEmail;
+
+    document.getElementById('confirm-box').style.display = 'none';
 
     document.querySelectorAll('.rsvp-btn').forEach(b => b.disabled = true);
     document.getElementById('rsvp-btns').style.display = 'none';
@@ -515,6 +605,8 @@
       msg.style.display = 'block';
       document.getElementById('rsvp-question').textContent = 'Đã chốt lịch! 🎀';
       selectPlan(plan);
+      pendingPlan = null;
+      pendingEmail = '';
 
     } catch (err) {
       console.error('EmailJS error:', err);
@@ -523,6 +615,7 @@
       document.getElementById('rsvp-btns').style.display = 'flex';
       document.getElementById('email-wrap').style.display = 'block';
       document.querySelectorAll('.rsvp-btn').forEach(b => b.disabled = false);
+      document.getElementById('confirm-box').style.display = 'none';
     }
   }
 
