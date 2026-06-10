@@ -272,15 +272,22 @@
   }
 
   .rsvp-btn.yes {
-    background: #fdf0f3;
-    border-color: #d0607a;
-    color: #9e3050;
+    background: #f7f7f5;
+    border-color: #e5e5e5;
+    color: #666;
   }
 
   .rsvp-btn.no {
     background: #f7f7f5;
     border-color: #e5e5e5;
     color: #666;
+  }
+
+  .rsvp-btn.choice-active {
+    background: #fdf0f3;
+    border-color: #d0607a;
+    color: #9e3050;
+    box-shadow: 0 0 0 1px rgba(208, 96, 122, 0.08);
   }
 
   .rsvp-btn:hover:not(:disabled) { opacity: 0.8; transform: scale(0.98); }
@@ -520,6 +527,13 @@
   let pendingEmail = '';
   let currentPlan = 'full';
   let previousPlan = 'full';
+  const DEFAULT_QUESTION = 'Em chốt lịch trình nào nè? 🎀';
+
+  function updateChoiceButtons(plan) {
+    document.querySelectorAll('.rsvp-btn').forEach(btn => btn.classList.remove('choice-active'));
+    const chosenBtn = document.querySelector(`.rsvp-btn.${plan === 'full' ? 'yes' : 'no'}`);
+    if (chosenBtn) chosenBtn.classList.add('choice-active');
+  }
 
   function selectPlan(plan) {
     ['full','evening'].forEach(p => {
@@ -528,6 +542,7 @@
     });
     document.getElementById('plan-' + plan).classList.add('show');
     document.getElementById('tab-' + plan).classList.add('active');
+    updateChoiceButtons(plan);
     currentPlan = plan;
   }
 
@@ -554,6 +569,7 @@
     pendingPlan = plan;
     pendingEmail = herEmail;
 
+    document.getElementById('rsvp-question').textContent = `Chọn xong thì bấm xác nhận gửi nha: ${plan === 'full' ? '🌅 Buổi chiều' : '🌙 Buổi tối'}`;
     document.getElementById('confirm-text').innerHTML = `Bạn chọn <strong>${PLAN_LABELS[plan]}</strong>.<br>Nhấn <strong>Xác nhận gửi</strong> để gửi thư xác nhận.`;
     document.getElementById('confirm-box').style.display = 'block';
     document.getElementById('error-msg').style.display = 'none';
@@ -564,6 +580,7 @@
     pendingPlan = null;
     pendingEmail = '';
     selectPlan(previousPlan);
+    document.getElementById('rsvp-question').textContent = DEFAULT_QUESTION;
     document.getElementById('confirm-box').style.display = 'none';
   }
 
@@ -607,8 +624,8 @@
       document.getElementById('sending-indicator').style.display = 'none';
       const msg = document.getElementById('chosen-msg');
       msg.innerHTML = plan === 'full'
-        ? '🎉 Yay! Anh book thủy cung + chỗ ăn tối ngay nha!<br><span style="font-size:12px;font-weight:400;color:#b84a72;">📧 Thư xác nhận đã gửi đến email của em~</span>'
-        : '🍽️ Ok em! Anh đặt bàn tối cho mình rồi~<br><span style="font-size:12px;font-weight:400;color:#b84a72;">📧 Thư xác nhận đã gửi đến email của em~</span>';
+        ? '🎉 Yay! Anh book thủy cung + chỗ ăn tối ngay nha!<br><span style="font-size:12px;font-weight:400;color:#b84a72;">📧 Thư xác nhận đã gửi đến email của em~<br>Nếu không thấy thì check ở thư spam nhé</span>'
+        : '🍽️ Ok em! Anh đặt bàn tối cho mình rồi~<br><span style="font-size:12px;font-weight:400;color:#b84a72;">📧 Thư xác nhận đã gửi đến email của em~<br>Nếu không thấy thì check ở thư spam nhé</span>';
       msg.style.display = 'block';
       document.getElementById('rsvp-question').textContent = 'Đã chốt lịch! 🎀';
       selectPlan(plan);
