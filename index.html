@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thiệp Sinh Nhật</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Be+Vietnam+Pro:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: #fdf6f0;
+    font-family: 'Be Vietnam Pro', sans-serif;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 24px;
+    border: 0.5px solid #e5e5e5;
+    overflow: hidden;
+    box-shadow: 0 4px 32px rgba(180,80,120,0.08);
+  }
+
+  .card-hero {
+    background: linear-gradient(135deg, #f9c6d0 0%, #fde2b5 50%, #c9e8f5 100%);
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero-confetti {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .dot {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.55;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.65);
+    color: #b84a72;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: #3a1a2e;
+    margin: 0 0 6px;
+    line-height: 1.2;
+  }
+
+  .hero-sub {
+    font-size: 14px;
+    color: #7a3a5a;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .hero-cake {
+    font-size: 52px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .card-body {
+    padding: 1.75rem 1.75rem 1rem;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #888;
+    margin: 0 0 12px;
+  }
+
+  .plan-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 9px 8px;
+    border-radius: 12px;
+    border: 1.5px solid #e5e5e5;
+    background: #f7f7f5;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .tab-btn.active {
+    border-color: #d0607a;
+    background: #fdf0f3;
+    color: #9e3050;
+    font-weight: 500;
+  }
+
+  .tab-btn .tab-icon {
+    font-size: 18px;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .plan-content { display: none; }
+  .plan-content.show { display: block; }
+
+  .timeline {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tl-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding-bottom: 18px;
+  }
+
+  .tl-item:last-child { padding-bottom: 0; }
+
+  .tl-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 36px;
+  }
+
+  .tl-dot {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+
+  .tl-dot.pink  { background: #fde8ef; }
+  .tl-dot.amber { background: #fef3e2; }
+  .tl-dot.blue  { background: #e8f2fd; }
+
+  .tl-line {
+    width: 1.5px;
+    flex: 1;
+    min-height: 18px;
+    background: #e5e5e5;
+    margin-top: 4px;
+  }
+
+  .tl-content { padding-top: 4px; flex: 1; }
+
+  .tl-time {
+    font-size: 11px;
+    font-weight: 500;
+    color: #aaa;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  .tl-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #222;
+    margin-bottom: 2px;
+  }
+
+  .tl-desc {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .divider {
+    height: 0.5px;
+    background: #e5e5e5;
+    margin: 0 1.75rem;
+  }
+
+  .rsvp-section {
+    padding: 1.25rem 1.75rem 1.75rem;
+  }
+
+  .rsvp-label {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .email-input-wrap {
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .email-input-wrap input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px solid #e5e5e5;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 13px;
+    color: #333;
+    background: #fafafa;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .email-input-wrap input:focus {
+    border-color: #d0607a;
+    background: #fff;
+  }
+
+  .email-input-wrap input.error {
+    border-color: #e24b4a;
+  }
+
+  .email-error {
+    display: none;
+    font-size: 11px;
+    color: #e24b4a;
+    margin-top: 5px;
+    padding-left: 4px;
+  }
+
+  .rsvp-btns {
+    display: flex;
+    gap: 10px;
+  }
+
+  .rsvp-btn {
+    flex: 1;
+    padding: 11px 8px;
+    border-radius: 14px;
+    border: 1.5px solid;
+    font-family: 'Be Vietnam Pro', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  .rsvp-btn.yes {
+    background: #fdf0f3;
+    border-color: #d0607a;
+    color: #9e3050;
+  }
+
+  .rsvp-btn.no {
+    background: #f7f7f5;
+    border-color: #e5e5e5;
+    color: #666;
+  }
+
+  .rsvp-btn:hover:not(:disabled) { opacity: 0.8; transform: scale(0.98); }
+  .rsvp-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .sending-indicator {
+    display: none;
+    text-align: center;
+    font-size: 13px;
+    color: #9e3050;
+    padding: 10px;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid #fde8ef;
+    border-top-color: #d0607a;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .chosen-msg {
+    display: none;
+    text-align: center;
+    font-size: 14px;
+    color: #9e3050;
+    font-weight: 500;
+    padding: 12px;
+    background: #fdf0f3;
+    border-radius: 12px;
+    margin-top: 2px;
+    line-height: 1.6;
+  }
+
+  .error-msg {
+    display: none;
+    text-align: center;
+    font-size: 13px;
+    color: #a32d2d;
+    padding: 10px;
+    background: #fcebeb;
+    border-radius: 12px;
+    margin-top: 8px;
+  }
+
+  .footer-note {
+    font-size: 12px;
+    color: #aaa;
+    text-align: center;
+    padding: 0 1.75rem 1.5rem;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-hero">
+    <div class="hero-confetti" id="confetti"></div>
+    <span class="hero-cake">🎂</span>
+    <div class="hero-tag">Happy Birthday</div>
+    <h1 class="hero-title">Sinh nhật của em!</h1>
+    <p class="hero-sub">Thứ Sáu này — anh đặt chỗ cho mình rồi nha 🎉</p>
+  </div>
+
+  <div class="card-body">
+    <p class="section-label">Chọn lịch trình phù hợp với em</p>
+    <div class="plan-tabs">
+      <button class="tab-btn active" onclick="selectPlan('full')" id="tab-full">
+        <span class="tab-icon">🌅</span>
+        Rảnh buổi chiều
+      </button>
+      <button class="tab-btn" onclick="selectPlan('evening')" id="tab-evening">
+        <span class="tab-icon">🌙</span>
+        Rảnh buổi tối
+      </button>
+    </div>
+
+    <div class="plan-content show" id="plan-full">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-dot blue">🐠</div>
+            <div class="tl-line"></div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-time">Chiều · ~14:00</div>
+            <div class="tl-title">Khám phá thủy cung</div>
+            <div class="tl-desc">Dạo quanh thế giới đại dương, chụp ảnh thật nhiều và vui hết cỡ!</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-dot amber">🍽️</div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-time">Tối · ~18:30</div>
+            <div class="tl-title">Ăn tối xả stress</div>
+            <div class="tl-desc">Một bữa ăn thật ngon, thật vui — quên hết mệt mỏi nào!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="plan-content" id="plan-evening">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-dot pink">🍜</div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-time">Tối · ~18:30</div>
+            <div class="tl-title">Ăn tối cùng nhau</div>
+            <div class="tl-desc">Dù bận thế nào thì tối vẫn phải ăn mừng sinh nhật nha em!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="rsvp-section">
+    <p class="rsvp-label" id="rsvp-question">Em chốt lịch trình nào nè? 🎀</p>
+
+    <div class="email-input-wrap" id="email-wrap">
+      <input type="email" id="email-input" placeholder="✉️  Nhập email của em để nhận thư xác nhận..." />
+      <div class="email-error" id="email-error">Vui lòng nhập email hợp lệ nha em!</div>
+    </div>
+
+    <div class="rsvp-btns" id="rsvp-btns">
+      <button class="rsvp-btn yes" onclick="rsvp('full')">🌅 Rảnh buổi chiều!</button>
+      <button class="rsvp-btn no" onclick="rsvp('evening')">🌙 Rảnh buổi tối!</button>
+    </div>
+
+    <div class="sending-indicator" id="sending-indicator">
+      <span class="spinner"></span> Đang gửi thư xác nhận...
+    </div>
+
+    <div class="chosen-msg" id="chosen-msg"></div>
+    <div class="error-msg" id="error-msg">😢 Gửi mail thất bại, thử lại sau nha em!</div>
+  </div>
+
+  <p class="footer-note">💌 Chốt sớm để anh đặt lịch và chuẩn bị nha em~</p>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════
+  //  ⚙️  CẤU HÌNH EMAILJS — chỉ cần điền 3 dòng này
+  // ═══════════════════════════════════════════════
+  const EMAILJS_PUBLIC_KEY      = '8WEFBfCqlGTkp2la0';    // ← Account → API Keys
+  const EMAILJS_SERVICE_ID      = 'service_9zidy4g';    // ← Email Services → Service ID
+  const EMAILJS_TEMPLATE_ID_YOU = 'template_j6mt7f9';         // ← Template 1: To Email = hinhnvt@lotusquant.com
+  const EMAILJS_TEMPLATE_ID_HER = 'template_k568o2n';         // ← Template 2: To Email = {{to_email}}
+  // ═══════════════════════════════════════════════
+  // Email của bạn đã được cứng trong EmailJS template (To Email: hinhnvt@lotusquant.com)
+  const YOUR_EMAIL = 'hinhnvt@lotusquant.com';
+
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+
+  const PLAN_LABELS = {
+    full:    '🌅 Rảnh buổi chiều — Thủy cung (~14:00) + Ăn tối (~18:30)',
+    evening: '🌙 Rảnh buổi tối — Ăn tối (~18:30)'
+  };
+
+  function selectPlan(plan) {
+    ['full','evening'].forEach(p => {
+      document.getElementById('plan-' + p).classList.remove('show');
+      document.getElementById('tab-' + p).classList.remove('active');
+    });
+    document.getElementById('plan-' + plan).classList.add('show');
+    document.getElementById('tab-' + plan).classList.add('active');
+  }
+
+  function isValidEmail(em) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.trim());
+  }
+
+  async function rsvp(plan) {
+    const emailInput = document.getElementById('email-input');
+    const emailError = document.getElementById('email-error');
+    const herEmail = emailInput.value.trim();
+
+    if (!isValidEmail(herEmail)) {
+      emailInput.classList.add('error');
+      emailError.style.display = 'block';
+      emailInput.focus();
+      return;
+    }
+    emailInput.classList.remove('error');
+    emailError.style.display = 'none';
+
+    document.querySelectorAll('.rsvp-btn').forEach(b => b.disabled = true);
+    document.getElementById('rsvp-btns').style.display = 'none';
+    document.getElementById('email-wrap').style.display = 'none';
+    document.getElementById('sending-indicator').style.display = 'flex';
+
+    const planLabel = PLAN_LABELS[plan];
+    const now = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+
+    try {
+      // ── Email 1: thông báo đến bạn (hinhnvt@lotusquant.com)
+      // To Email đã cứng trong template → chỉ cần truyền đúng biến template
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_YOU, {
+        name:    'Cô ấy',
+        email:   herEmail,
+        time:    now,
+        subject: '🎉 Cô ấy đã chốt lịch sinh nhật!',
+        message: `Em đã chốt lịch vào lúc ${now}.\n\nLịch trình được chọn:\n${planLabel}\n\nEmail của em: ${herEmail}`
+      });
+
+      // ── Email 2: thư xác nhận gửi đến cô ấy (Template 2 — To Email = {{to_email}})
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID_HER, {
+        name:     'Anh',
+        email:    YOUR_EMAIL,
+        time:     now,
+        subject:  '🎂 Xác nhận lịch sinh nhật của em!',
+        message:  `Em đã chốt lịch thành công! 🎉\n\nLịch trình:\n${planLabel}\n\nAnh sẽ chuẩn bị sẵn sàng cho ngày vui của mình nha!\nChúc em sinh nhật thật vui và hạnh phúc~ 🎀`,
+        to_email: herEmail
+      });
+
+      document.getElementById('sending-indicator').style.display = 'none';
+      const msg = document.getElementById('chosen-msg');
+      msg.innerHTML = plan === 'full'
+        ? '🎉 Yay! Anh book thủy cung + chỗ ăn tối ngay nha!<br><span style="font-size:12px;font-weight:400;color:#b84a72;">📧 Thư xác nhận đã gửi đến email của em~</span>'
+        : '🍽️ Ok em! Anh đặt bàn tối cho mình rồi~<br><span style="font-size:12px;font-weight:400;color:#b84a72;">📧 Thư xác nhận đã gửi đến email của em~</span>';
+      msg.style.display = 'block';
+      document.getElementById('rsvp-question').textContent = 'Đã chốt lịch! 🎀';
+      selectPlan(plan);
+
+    } catch (err) {
+      console.error('EmailJS error:', err);
+      document.getElementById('sending-indicator').style.display = 'none';
+      document.getElementById('error-msg').style.display = 'block';
+      document.getElementById('rsvp-btns').style.display = 'flex';
+      document.getElementById('email-wrap').style.display = 'block';
+      document.querySelectorAll('.rsvp-btn').forEach(b => b.disabled = false);
+    }
+  }
+
+  // Confetti dots
+  const colors = ['#f472b6','#fb923c','#60a5fa','#a78bfa','#34d399','#fbbf24'];
+  const container = document.getElementById('confetti');
+  for (let i = 0; i < 18; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.style.left = (Math.random() * 100) + '%';
+    d.style.top = (Math.random() * 100) + '%';
+    d.style.background = colors[i % colors.length];
+    const size = (5 + Math.random() * 6) + 'px';
+    d.style.width = size;
+    d.style.height = size;
+    container.appendChild(d);
+  }
+</script>
+</body>
+</html>
